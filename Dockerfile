@@ -21,4 +21,4 @@ ENV PROCESSES=1
 ENV WORKERS=1
 ENV FAST_MODE="false"
     # ENTRYPOINT ["python3", "-m", "svc"]
-CMD ["python3", "-m", "svc", "--log-level=INFO"]    
+CMD ["python3", "-m", "src", "--log-level=INFO"]    
