@@ -1,5 +1,5 @@
 
-from models import Survey
+from models import Survey, UserResponse
 from log import logger
 import uuid
 import json
@@ -23,9 +23,11 @@ def get_survey_with_id(session: Session, survey_id: str) -> Optional[Survey]:
     """
     try:
         record = session.query(Survey).filter(Survey.survey_id == survey_id).first()
-        record = record.as_dict()
-        if not record:
+        if record is None:
             logger.warning(f"Survey with ID {survey_id} not found.")
+            return None
+        
+        record = record.as_dict()
         return record
     except Exception as e:
         logger.error(f"Error while fetching survey from DB: {e}")
@@ -67,5 +69,35 @@ def create_survey(session:Session, data: dict) -> dict:
             session.commit()
             session.refresh(new_survey)
             return {"status": "success", "survey_id": new_survey.survey_id}
+    except SQLAlchemyError as e:
+        return {"status": "error", "message": str(e)}
+
+
+
+
+def save_user_response(session,data):
+    try:
+        user_id = data["user_id"]
+        survey_id = data["survey_id"]
+        responses = data["responses"]  # This should be a list of question-response pairs
+        tenant = data["tenant"]
+        channel_id = data["channel_id"]
+        status = data["status"]
+
+        # Save the response to the database
+        new_response = UserResponse(
+            user_id=user_id,
+            survey_id=survey_id,
+            response_data=responses,
+            tenant=tenant,
+            channel_id=channel_id,
+            status=status,
+        )    
+        session.add(new_response)
+        session.commit()
+        session.refresh(new_response)
+
+        logger.info(f"User response was saved successfully {new_response.response_id}")
+        return {"status": "success", "response_id": new_response.response_id}
     except SQLAlchemyError as e:
         return {"status": "error", "message": str(e)}

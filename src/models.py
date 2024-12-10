@@ -43,12 +43,14 @@ class UserResponse(Base, Helper):
 
     response_id = Column(UUID(as_uuid=True), primary_key=True, default=generate_uuid)
     survey_id = Column(String, ForeignKey('surveys.survey_id', ondelete='CASCADE'))
-    user_id = Column(String, default="John Doe")
-    response_data = Column(JSON)
+    user_id = Column(String, nullable=False)
+    response_data = Column(JSON) 
     tenant = Column(String, nullable=False)
+    channel_id = Column(String, nullable=False)  
+    status = Column(String, nullable=False)  
+    timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     survey = relationship('Survey', back_populates='responses')
-
 
 DB_URL = getenv("RAILWAY_PG_URL")
 try:

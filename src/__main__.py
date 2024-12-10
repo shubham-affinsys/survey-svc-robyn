@@ -11,7 +11,7 @@ from log import logger
 app = Robyn(__file__)
 
 
-from utils import create_survey
+from utils import create_survey,save_user_response,get_survey_with_id
 
 @app.before_request()
 def before_req(request):
@@ -64,18 +64,35 @@ async def get_survey_questions(request):
         logger.error(f"error while fetching survey questions {e}")
         return {"error":"cannot fetch survey data"}
 
-
-@app.post("/suvrey_response")
+@app.post("/user-response")
 async def save_survey_response(request):
     try:
         data = request.json()
-        logger.info(f"user response was saved {data}")
-        return {"description":"Response saved success"}
-    except Exception as e:
-        logger.error(f"error wile saving survey response {e}")
-        return {"error":"Invalid data provided"}
-        # return Response(status_code=200,headers={"Content-Type":"text/plain"},description="Response saved success")
 
+        required_fields = ["user_id", "survey_id", "responses", "tenant", "channel_id", "status"]
+        missing_fields = [field for field in required_fields if field not in data]
+
+        if missing_fields:
+            logger.error(f"Missing required fields: {', '.join(missing_fields)}")
+            return {"error": f"Missing required fields: {', '.join(missing_fields)}"}
+
+        with SessionLocal() as session:
+            survey =  get_survey_with_id(session,data['survey_id'])
+            if survey is None:
+                logger.error(f"Survey_id is invalid : {data['survey_id']}")
+                return {"error":"survey_id is invalid"}
+
+            record = save_user_response(session,data)
+
+            if record["status"] == "success":
+                return {"description": "User response saved successfully", "response_id": record["response_id"]}
+            else:
+                logger.error(f"error while saving user response {record['message']}")
+                return {"error": "Could not save user response", "message": record["message"]}
+            
+    except Exception as e:
+        logger.error(f"Error while saving survey response: {e}")
+        return {"error": "Invalid data provided"}
 
 
 @app.get("/")
