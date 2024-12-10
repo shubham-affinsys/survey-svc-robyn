@@ -48,10 +48,10 @@ async def create_survey_handler(request: Request):
 
 
 
-@app.get("/survey/:survey_id")
+@app.get("/survey")
 async def get_survey_questions(request):
     try:
-        survey_id = request.path_params.get("survey_id",None)
+        survey_id = request.query_params.get("survey_id",None)
 
         if survey_id is None:
             logger.error("Survey id was not provided")
