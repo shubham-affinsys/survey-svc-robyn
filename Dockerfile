@@ -11,7 +11,7 @@
 FROM python:3.11-bookworm
 RUN apt-get update && apt-get install -y supervisor
 WORKDIR /workspace    
-ENV PYTHONPATH="${PYTHONPATH}:/workspace/svc"    
+ENV PYTHONPATH="${PYTHONPATH}:/workspace/src"    
 COPY . .    
 RUN pip install -r requirements.txt    
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf    

@@ -2,7 +2,7 @@ import psycopg2
 from os import getenv
 from robyn import Robyn,Request, Response
 
-from models import *
+from models import Survey, UserResponse
 
 from dotenv import load_dotenv
 load_dotenv()
