@@ -56,7 +56,7 @@ async def get_survey_questions(request):
         if survey_id is None:
             logger.error("Survey id was not provided")
             return {"error":"please provide survey_id"}
-        
+        logger.info(f"survey_id in query params : {survey_id}")        
         questions = get_all_questions(survey_id=survey_id)
         logger.info(f"question fetched from db success for survey_id : {survey_id}")
         return questions
