@@ -11,7 +11,7 @@ from log import logger
 app = Robyn(__file__)
 
 
-from utils import create_survey,save_user_response,get_survey_with_id
+from utils import create_survey,save_user_response,get_survey_with_id,get_all_surveys
 
 @app.before_request()
 def before_req(request):
@@ -25,7 +25,13 @@ def after_req(response):
 
 @app.get("/surveys")
 def get_users():
-    return {"data": "all_surveys"}
+    try:
+        with SessionLocal() as session:
+            surveys = get_all_surveys(session)
+        return {"data": surveys}
+    except Exception as e:
+        logger.error(f"Error whie fething all surveys {e}")
+        return {"error":"error while fetching all surveys"}
 
 
 @app.post("/create-survey")
@@ -92,7 +98,7 @@ async def save_survey_response(request):
             
     except Exception as e:
         logger.error(f"Error while saving survey response: {e}")
-        return {"error": "Invalid data provided"}
+        return {"error": "Error while saving user response"}
 
 
 @app.get("/")

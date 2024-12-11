@@ -10,6 +10,30 @@ from sqlalchemy import select
 
 from typing import Optional
 
+
+def get_all_surveys(session: Session) -> Optional[Survey]:
+    """
+    Fetch a survey record by its ID.
+
+    Args:
+        session (Session): The SQLAlchemy session to use for the query.
+        survey_id (str): The ID of the survey to fetch.
+
+    Returns:
+        Optional[Survey]: The survey record if found, otherwise None.
+    """
+    try:
+        records = session.query(Survey).all()
+        if records is None:
+            logger.warning(f"No surveys are available")
+            return None
+        
+        records =[ record.as_dict() for record in records]
+        return records
+    except Exception as e:
+        logger.error(f"Error while fetching all surveys from DB: {e}")
+        return None
+
 def get_survey_with_id(session: Session, survey_id: str) -> Optional[Survey]:
     """
     Fetch a survey record by its ID.
