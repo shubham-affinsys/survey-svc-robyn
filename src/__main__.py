@@ -70,15 +70,16 @@ async def get_survey_questions(request):
         logger.error(f"error while fetching survey questions {e}")
         return {"error":"cannot fetch survey data"}
 
+CORS_HEADERS = {
+    "Access-Control-Allow-Origin": "https://dev.bankbuddy.me",  # Allow specific origin
+    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type",
+}
+
+# Preflight request handler for OPTIONS
 @app.options("/surveys/all")
 async def preflight_handler(request):
-    return Response(
-        status_code=204,
-        headers={
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "Content-Type",
-        },)
+    return Response(status_code=204, headers=CORS_HEADERS)
 
 @app.get("/surveys/all")
 async def get_survey_questions(request):
