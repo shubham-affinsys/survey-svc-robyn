@@ -69,127 +69,38 @@ async def get_survey_questions(request):
     except Exception as e:
         logger.error(f"error while fetching survey questions {e}")
         return {"error":"cannot fetch survey data"}
-    
+
+
 @app.get("/surveys/all")
 async def get_survey_questions(request):
     data = [
-            {
-                "id": "3f95e50bddf24121bf9f7f4cc8e98376",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "95b44ea894144291aeee0735b299889b",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "37942a7aca3649f98e1d65cf6e549f04",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "975f84ef12074c3e8bde89be4413c39f",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "e629bcf48aa84b62a9cffe39762dc3de",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "8d2af7be28034566b376c2386707ae65",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "de9cb1e3ddde43da8dd6b071df95c776",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "6f1f56fea27040478a26bb92f71a1752",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "4c40852df02f43c59e5aa49795d14436",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "f2576bd6fc114041a99ef6c67b771852",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "76625780a50740c1a1144a566ae19765",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "f203d181dd264c6aaed46bf2614d10db",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "76783fc355c745daae1bcf81f013c89a",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "43d2165c5b3f43d6a88b5343d61f9ac6",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "c4d370e5559b42b38f5291d4bd908c83",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "522deacd76974ef6a8ad020ff3f49562",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "30ec61c58a3a4d35b083b8416b6be6eb",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "08305b6502634a5db2697b2d6984348d",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "ca33643b4c9445b48467a1f382321b0f",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "ba08220b3dab4032b746ae0efd0bc222",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "9081eb7f026b4902a45101dfdc22569b",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            },
-            {
-                "id": "4169f0ce0f94417baba4f9206287bc0e",
-                "name": "CES_survey",
-                "title": "ces_survey"
-            }
-        ]
-    return json.dumps(data)
+        {"id": "3f95e50bddf24121bf9f7f4cc8e98376", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "95b44ea894144291aeee0735b299889b", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "37942a7aca3649f98e1d65cf6e549f04", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "975f84ef12074c3e8bde89be4413c39f", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "e629bcf48aa84b62a9cffe39762dc3de", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "8d2af7be28034566b376c2386707ae65", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "de9cb1e3ddde43da8dd6b071df95c776", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "6f1f56fea27040478a26bb92f71a1752", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "4c40852df02f43c59e5aa49795d14436", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "f2576bd6fc114041a99ef6c67b771852", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "76625780a50740c1a1144a566ae19765", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "f203d181dd264c6aaed46bf2614d10db", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "76783fc355c745daae1bcf81f013c89a", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "43d2165c5b3f43d6a88b5343d61f9ac6", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "c4d370e5559b42b38f5291d4bd908c83", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "522deacd76974ef6a8ad020ff3f49562", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "30ec61c58a3a4d35b083b8416b6be6eb", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "08305b6502634a5db2697b2d6984348d", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "ca33643b4c9445b48467a1f382321b0f", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "ba08220b3dab4032b746ae0efd0bc222", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "9081eb7f026b4902a45101dfdc22569b", "name": "CES_survey", "title": "ces_survey"},
+        {"id": "4169f0ce0f94417baba4f9206287bc0e", "name": "CES_survey", "title": "ces_survey"},
+    ]
+
+    return  {"data":data}
+
 
 @app.post("/user-response")
 async def save_survey_response(request):
