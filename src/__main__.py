@@ -1,6 +1,6 @@
 import psycopg2
 from os import getenv
-from robyn import Robyn,Request, Response
+from robyn import Robyn,Request, Response,ALLOW_CORS
 
 from models import Survey, UserResponse, SessionLocal
 
@@ -109,7 +109,14 @@ async def get_survey_questions(request):
         {"id": "4169f0ce0f94417baba4f9206287bc0e", "name": "CES_survey", "title": "ces_survey"},
     ]
 
-    return  {"data":data}
+    import json
+    return {"data":data}
+    # return Response(
+    #     status_code=200,
+    #     headers=CORS_HEADERS,
+    #     description="OK",
+    #     json={"data": data},
+    # )
 
 
 @app.post("/user-response")
@@ -147,6 +154,7 @@ async def save_survey_response(request):
 def index():
     return "Hello World!"
 
-
+app = Robyn(__file__)
+ALLOW_CORS(app, origins = ["http://localhost:8080/","https://dev.bankbuddy.me/"])
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
