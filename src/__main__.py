@@ -108,8 +108,6 @@ async def get_survey_questions(request):
         {"id": "9081eb7f026b4902a45101dfdc22569b", "name": "CES_survey", "title": "ces_survey"},
         {"id": "4169f0ce0f94417baba4f9206287bc0e", "name": "CES_survey", "title": "ces_survey"},
     ]
-
-    import json
     return {"data":data}
     # return Response(
     #     status_code=200,
@@ -154,7 +152,7 @@ async def save_survey_response(request):
 def index():
     return "Hello World!"
 
-app = Robyn(__file__)
-ALLOW_CORS(app, origins = ["http://localhost:8080/","https://dev.bankbuddy.me/"])
+ALLOW_CORS(app, origins = ["http://0.0.0.0:8080/","https://dev.bankbuddy.me/","*"])
+
 if __name__ == "__main__":
     app.start(host="0.0.0.0", port=8080)
