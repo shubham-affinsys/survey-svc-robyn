@@ -2,9 +2,9 @@ name: Self-Contained Code Analysis & Security
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main, master]
   pull_request:
-    branches: [main, develop]
+    branches: [main, master]
 
 jobs:
   code_analysis:
