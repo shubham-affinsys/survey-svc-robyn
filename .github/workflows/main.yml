@@ -1,0 +1,126 @@
+name: Self-Contained Code Analysis & Security
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  code_analysis:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Flake8 (Linter)
+        id: flake8
+        run: |
+          pip install flake8
+          flake8 . > flake8_results.txt
+        continue-on-error: true
+
+      - name: Annotate Flake8 Results
+        if: steps.flake8.outcome == 'success'
+        run: |
+          cat flake8_results.txt | while IFS= read -r line; do
+            echo "::warning file=${line%%:*}::${line#*:}"
+          done
+
+      - name: Run Bandit (Security Checker)
+        id: bandit
+        run: |
+          pip install bandit
+          bandit -r . --format txt > bandit_results.txt
+        continue-on-error: true
+
+      - name: Annotate Bandit Results
+        if: steps.bandit.outcome == 'success'
+        run: |
+          cat bandit_results.txt | while IFS= read -r line; do
+            if [[ "$line" == *"::"* ]] ; then
+               echo "::error file=${line%%:*}::${line#*:}"
+            fi
+          done
+
+      - name: Run Safety (Dependency Checker)
+        id: safety
+        run: |
+          pip install safety
+          safety check --full-report > safety_results.txt
+        continue-on-error: true
+
+      - name: Annotate Safety Results
+        if: steps.safety.outcome == 'success'
+        run: |
+          cat safety_results.txt | while IFS= read -r line; do
+            if [[ "$line" == *"vulnerability"* ]] ; then
+             echo "::error::$line"
+            fi
+          done
+      - name: Run MyPy (Type Checker)
+        id: mypy
+        run: |
+          pip install mypy
+          mypy . --ignore-missing-imports > mypy_results.txt
+        continue-on-error: true
+
+      - name: Annotate MyPy Results
+        if: steps.mypy.outcome == 'success'
+        run: |
+          cat mypy_results.txt | while IFS= read -r line; do
+             if [[ "$line" == *": error:"* ]] ; then
+                echo "::error file=${line%%:*}::${line#*:}"
+             fi
+          done
+
+      - name: Run Radon (Code Complexity)
+        id: radon
+        run: |
+          pip install radon
+          radon cc -a . > radon_results.txt
+        continue-on-error: true
+
+      - name: Report Radon Results
+        if: steps.radon.outcome == 'success'
+        run: |
+          cat radon_results.txt | while IFS= read -r line; do
+             if [[ "$line" == *"complexity"* ]] ; then
+                echo "::warning::$line"
+             fi
+          done
+
+      - name: Report
+        if: steps.flake8.outcome == 'success' || steps.bandit.outcome == 'success' || steps.safety.outcome == 'success' || steps.mypy.outcome == 'success' || steps.radon.outcome == 'success'
+        run: |
+          echo "## Analysis Report" >> $GITHUB_STEP_SUMMARY
+          if [ -s "flake8_results.txt" ]; then
+            echo "### Flake8 (Code Style)" >> $GITHUB_STEP_SUMMARY
+            cat flake8_results.txt >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -s "bandit_results.txt" ]; then
+            echo "### Bandit (Security)" >> $GITHUB_STEP_SUMMARY
+            cat bandit_results.txt >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -s "safety_results.txt" ]; then
+             echo "### Safety (Dependencies)" >> $GITHUB_STEP_SUMMARY
+             cat safety_results.txt  >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -s "mypy_results.txt" ]; then
+            echo "### MyPy (Type checking)" >> $GITHUB_STEP_SUMMARY
+            cat mypy_results.txt >> $GITHUB_STEP_SUMMARY
+          fi
+          if [ -s "radon_results.txt" ]; then
+             echo "### Radon (Complexity)" >> $GITHUB_STEP_SUMMARY
+             cat radon_results.txt  >> $GITHUB_STEP_SUMMARY
+          fi
