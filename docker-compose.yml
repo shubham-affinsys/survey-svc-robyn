@@ -1,0 +1,12 @@
+services:
+  survey-builder:
+    image: survey-robyn:v1
+    container_name: survey-svc-robyn
+    environment:
+      RAILWAY_PG_URL:
+      PROCESSES: 2
+      WORKERS: 4        
+      FAST_MODE: "false"
+      LOG_LEVEL: "INFO"
+    ports:
+      - "8081:8080"
