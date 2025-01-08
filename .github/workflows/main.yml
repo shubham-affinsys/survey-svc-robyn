@@ -1,5 +1,7 @@
 name: Self-Contained Code Analysis & Security
+
 runs-on: self-hosted
+
 on:
   push:
     branches: [main, master]
@@ -8,7 +10,7 @@ on:
 
 jobs:
   code_analysis:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,43 +33,38 @@ jobs:
         continue-on-error: true
 
       - name: Annotate Flake8 Results
-        if: steps.flake8.outcome == 'success'
+        if: steps.flake8.outcome != 'success'
         run: |
           cat flake8_results.txt | while IFS= read -r line; do
-            echo "::warning file=${line%%:*}::${line#*:}"
+            IFS=: read -r file line_num col msg <<< "$line"
+            if [[ ! -z "$file" && ! -z "$line_num" && ! -z "$col" && ! -z "$msg" ]]; then
+              echo "::warning file=$file,line=$line_num,col=$col::$msg"
+            fi
           done
 
       - name: Run Bandit (Security Checker)
         id: bandit
         run: |
           pip install bandit
-          bandit -r . --format txt > bandit_results.txt
+          bandit -r . -f json > bandit_results.json
         continue-on-error: true
 
       - name: Annotate Bandit Results
-        if: steps.bandit.outcome == 'success'
+        if: steps.bandit.outcome != 'success'
         run: |
-          cat bandit_results.txt | while IFS= read -r line; do
-            if [[ "$line" == *"::"* ]] ; then
-               echo "::error file=${line%%:*}::${line#*:}"
-            fi
-          done
-
+          jq -r '.results[] | "::error file=\(.filename),line=\(.line_number)::\(.issue_text)"' bandit_results.json
+          
       - name: Run Safety (Dependency Checker)
         id: safety
         run: |
           pip install safety
-          safety check --full-report > safety_results.txt
+          safety check --full-report --json > safety_results.json
         continue-on-error: true
-
       - name: Annotate Safety Results
-        if: steps.safety.outcome == 'success'
+        if: steps.safety.outcome != 'success'
         run: |
-          cat safety_results.txt | while IFS= read -r line; do
-            if [[ "$line" == *"vulnerability"* ]] ; then
-             echo "::error::$line"
-            fi
-          done
+           jq -r '.vulnerabilities[] | "::error file=\(.package),line=0::Vulnerability found in package \(.package) at version \(.version) with id \(.vulnerability_id) " ' safety_results.json
+
       - name: Run MyPy (Type Checker)
         id: mypy
         run: |
@@ -76,11 +73,14 @@ jobs:
         continue-on-error: true
 
       - name: Annotate MyPy Results
-        if: steps.mypy.outcome == 'success'
+        if: steps.mypy.outcome != 'success'
         run: |
           cat mypy_results.txt | while IFS= read -r line; do
              if [[ "$line" == *": error:"* ]] ; then
-                echo "::error file=${line%%:*}::${line#*:}"
+                IFS=: read -r file line_num col msg <<< "$line"
+                if [[ ! -z "$file" && ! -z "$line_num" && ! -z "$col" && ! -z "$msg" ]]; then
+                   echo "::error file=$file,line=$line_num,col=$col::$msg"
+                fi
              fi
           done
 
@@ -92,7 +92,7 @@ jobs:
         continue-on-error: true
 
       - name: Report Radon Results
-        if: steps.radon.outcome == 'success'
+        if: steps.radon.outcome != 'success'
         run: |
           cat radon_results.txt | while IFS= read -r line; do
              if [[ "$line" == *"complexity"* ]] ; then
@@ -101,20 +101,26 @@ jobs:
           done
 
       - name: Report
-        if: steps.flake8.outcome == 'success' || steps.bandit.outcome == 'success' || steps.safety.outcome == 'success' || steps.mypy.outcome == 'success' || steps.radon.outcome == 'success'
+        if: steps.flake8.outcome != 'success' || steps.bandit.outcome != 'success' || steps.safety.outcome != 'success' || steps.mypy.outcome != 'success' || steps.radon.outcome != 'success'
         run: |
           echo "## Analysis Report" >> $GITHUB_STEP_SUMMARY
+          echo "### Summary" >> $GITHUB_STEP_SUMMARY
+          echo "Flake8 Success: ${{ steps.flake8.outcome == 'success' }}" >> $GITHUB_STEP_SUMMARY
+          echo "Bandit Success: ${{ steps.bandit.outcome == 'success' }}" >> $GITHUB_STEP_SUMMARY
+          echo "Safety Success: ${{ steps.safety.outcome == 'success' }}" >> $GITHUB_STEP_SUMMARY
+          echo "MyPy Success: ${{ steps.mypy.outcome == 'success' }}" >> $GITHUB_STEP_SUMMARY
+          echo "Radon Success: ${{ steps.radon.outcome == 'success' }}" >> $GITHUB_STEP_SUMMARY
           if [ -s "flake8_results.txt" ]; then
             echo "### Flake8 (Code Style)" >> $GITHUB_STEP_SUMMARY
             cat flake8_results.txt >> $GITHUB_STEP_SUMMARY
           fi
-          if [ -s "bandit_results.txt" ]; then
+          if [ -s "bandit_results.json" ]; then
             echo "### Bandit (Security)" >> $GITHUB_STEP_SUMMARY
-            cat bandit_results.txt >> $GITHUB_STEP_SUMMARY
+              jq -r '.results[] | "\(.filename):\(.line_number) \(.issue_text)"' bandit_results.json  >> $GITHUB_STEP_SUMMARY
           fi
-          if [ -s "safety_results.txt" ]; then
+          if [ -s "safety_results.json" ]; then
              echo "### Safety (Dependencies)" >> $GITHUB_STEP_SUMMARY
-             cat safety_results.txt  >> $GITHUB_STEP_SUMMARY
+             jq -r '.vulnerabilities[] | "\(.package) at version \(.version) has vulnerability: \(.vulnerability_id)" ' safety_results.json  >> $GITHUB_STEP_SUMMARY
           fi
           if [ -s "mypy_results.txt" ]; then
             echo "### MyPy (Type checking)" >> $GITHUB_STEP_SUMMARY
