@@ -72,6 +72,8 @@ def get_all_questions(survey_id):
     with SessionLocal() as session:
         try:
             survey = get_survey_with_id(session=session,survey_id=survey_id)
+            if not survey:
+                return {"error":"Not Found"}
             survey_data = survey.get("survey_data",None)
             survey_data = json.loads(survey_data)
         except Exception as e:
@@ -82,11 +84,7 @@ def get_all_questions(survey_id):
     formatted_questions = {}
 
     for question in survey_data:
-        f_ques  = {}
-        f_ques["id"] = question.get("id")
-        f_ques["label"] =  question.get("label")
-        f_ques["type"] =  question.get("type")
-        
+        f_ques  = {"id": question.get("id"), "label": question.get("label"), "type": question.get("type")}
 
         action  = question.get('actions',None)
         if action:

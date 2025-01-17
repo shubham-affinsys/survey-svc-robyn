@@ -1,13 +1,7 @@
 
 from models import Survey, UserResponse
 from log import logger
-import uuid
-import json
-from sqlalchemy.future import select
-
 from sqlalchemy.orm import Session
-from sqlalchemy import select
-
 from typing import Optional
 
 
@@ -103,7 +97,7 @@ def save_user_response(session,data):
     try:
         user_id = data["user_id"]
         survey_id = data["survey_id"]
-        responses = data["responses"]  # This should be a list of question-response pairs
+        responses = data["responses"]
         tenant = data["tenant"]
         channel_id = data["channel_id"]
         status = data["status"]

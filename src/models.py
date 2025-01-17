@@ -25,13 +25,12 @@ def generate_uuid():
     return str(uuid.uuid4())
 
 
-
 class Survey(Base, Helper):
     __tablename__ = 'surveys'
 
-    survey_id = Column(String, primary_key=True)
+    survey_id = Column(String, primary_key=True) 
     title = Column(String, nullable=True)
-    description = Column(String, nullable=True)
+    description = Column(String, nullable=True)  ## not in newone
     survey_data = Column(JSON, nullable=True)
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     tenant = Column(String, nullable=True)
@@ -41,13 +40,13 @@ class Survey(Base, Helper):
 class UserResponse(Base, Helper):
     __tablename__ = 'user_responses'
 
-    response_id = Column(UUID(as_uuid=True), primary_key=True, default=generate_uuid)
+    response_id = Column(UUID(as_uuid=True), primary_key=True, default=generate_uuid)   # set as serial int
     survey_id = Column(String, ForeignKey('surveys.survey_id', ondelete='CASCADE'))
-    user_id = Column(String, nullable=False)
-    response_data = Column(JSON) 
-    tenant = Column(String, nullable=False)
-    channel_id = Column(String, nullable=False)  
-    status = Column(String, nullable=False)  
+    user_id = Column(String, nullable=False)   # profile integration
+    response_data = Column(JSON)               # change format
+    tenant = Column(String, nullable=False)    
+    channel_id = Column(String, nullable=False)  ## only store channel
+    status = Column(String, nullable=False)   ## not in new one
     timestamp = Column(DateTime, default=lambda: datetime.now(timezone.utc))
 
     survey = relationship('Survey', back_populates='responses')
